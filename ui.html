@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compliance Engine</title>
+  <style>
+    :root {
+      --panel: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --ok: #065f46;
+      --warn: #92400e;
+      --danger: #991b1b;
+      --line: #d1d5db;
+      --accent: #0f766e;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top right, #d1fae5, #f3f4f6 60%);
+      color: var(--text);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      padding: 12px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 4px 14px rgba(17, 24, 39, 0.06);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+      margin-bottom: 12px;
+    }
+
+    .score {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .badge {
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .safe { background: #d1fae5; color: var(--ok); }
+    .blocked { background: #fee2e2; color: var(--danger); }
+
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: white;
+      border-color: #115e59;
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .pill {
+      font-size: 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 6px;
+      text-align: center;
+      background: #fafafa;
+    }
+
+    .status {
+      font-size: 12px;
+      margin-bottom: 8px;
+      min-height: 16px;
+      color: var(--muted);
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      background: #fbfffe;
+      min-height: 120px;
+      max-height: 180px;
+      overflow: auto;
+      font-size: 12px;
+    }
+
+    .panel h2 {
+      margin: 0 0 6px;
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .fix-row {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px;
+      margin-bottom: 6px;
+      background: #fff;
+    }
+
+    .fix-title {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .fix-meta {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .list {
+      max-height: 280px;
+      overflow: auto;
+      border-top: 1px solid var(--line);
+      padding-top: 8px;
+    }
+
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 8px;
+      background: #fff;
+    }
+
+    .item-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .item-title {
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 16px;
+    }
+
+    li {
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .sev-critical { color: var(--danger); }
+    .sev-warning { color: var(--warn); }
+    .sev-minor { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Pre-Conversion Compliance Engine</h1>
+    <div class="muted">Figma -> Elementor safety gate</div>
+
+    <div class="score">
+      <span id="scoreText">Compatibility Score: --/100</span>
+      <span id="gateBadge" class="badge blocked">BLOCKED</span>
+    </div>
+
+    <div class="summary">
+      <div class="pill">Critical: <strong id="criticalCount">0</strong></div>
+      <div class="pill">Warning: <strong id="warningCount">0</strong></div>
+      <div class="pill">Minor: <strong id="minorCount">0</strong></div>
+    </div>
+
+    <div class="actions">
+      <button id="scanBtn" class="primary">Scan</button>
+      <button id="previewBtn">Preview</button>
+      <button id="applySelectedBtn" disabled>Apply Selected</button>
+      <button id="autoFixBtn">Auto-Fix All</button>
+      <button id="exportBtn" disabled>Export</button>
+    </div>
+
+    <div id="status" class="status">Select one or more top-level sections and run scan.</div>
+
+    <div class="preview-grid">
+      <div class="panel" id="safePanel">
+        <h2>Safe To Apply</h2>
+        <div id="safeFixes">Run preview to see safe fixes.</div>
+      </div>
+      <div class="panel" id="manualPanel">
+        <h2>Needs Manual Review</h2>
+        <div id="manualFixes">Run preview to see manual items.</div>
+      </div>
+    </div>
+
+    <div id="issues" class="list"></div>
+  </div>
+
+  <script>
+    const scanBtn = document.getElementById("scanBtn");
+    const previewBtn = document.getElementById("previewBtn");
+    const applySelectedBtn = document.getElementById("applySelectedBtn");
+    const autoFixBtn = document.getElementById("autoFixBtn");
+    const exportBtn = document.getElementById("exportBtn");
+    const scoreText = document.getElementById("scoreText");
+    const gateBadge = document.getElementById("gateBadge");
+    const statusEl = document.getElementById("status");
+    const issuesEl = document.getElementById("issues");
+    const safeFixesEl = document.getElementById("safeFixes");
+    const manualFixesEl = document.getElementById("manualFixes");
+    const criticalCount = document.getElementById("criticalCount");
+    const warningCount = document.getElementById("warningCount");
+    const minorCount = document.getElementById("minorCount");
+
+    let lastSafeFixes = [];
+    let selectedFixIds = new Set();
+
+    function severityClass(sev) {
+      if (sev === "CRITICAL") return "sev-critical";
+      if (sev === "WARNING") return "sev-warning";
+      return "sev-minor";
+    }
+
+    function setApplyButtonState() {
+      applySelectedBtn.disabled = selectedFixIds.size === 0;
+    }
+
+    function makeFixRow(fix, withCheckbox) {
+      const row = document.createElement("div");
+      row.className = "fix-row";
+
+      if (withCheckbox) {
+        const line = document.createElement("label");
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.checked = selectedFixIds.has(fix.id);
+        input.onchange = () => {
+          if (input.checked) selectedFixIds.add(fix.id);
+          else selectedFixIds.delete(fix.id);
+          setApplyButtonState();
+        };
+        line.appendChild(input);
+
+        const text = document.createElement("span");
+        text.textContent = ` ${fix.nodeName}`;
+        line.appendChild(text);
+        row.appendChild(line);
+      }
+
+      const title = document.createElement("div");
+      title.className = "fix-title";
+      title.textContent = fix.action;
+      row.appendChild(title);
+
+      const meta = document.createElement("div");
+      meta.className = "fix-meta";
+      meta.textContent = `Node: ${fix.nodeName}`;
+      row.appendChild(meta);
+
+      if (fix.reason) {
+        const reason = document.createElement("div");
+        reason.className = "fix-meta";
+        reason.textContent = `Reason: ${fix.reason}`;
+        row.appendChild(reason);
+      }
+
+      return row;
+    }
+
+    function renderPreview(payload) {
+      lastSafeFixes = payload.safeFixes || [];
+      selectedFixIds = new Set(lastSafeFixes.map((f) => f.id));
+      setApplyButtonState();
+
+      safeFixesEl.innerHTML = "";
+      manualFixesEl.innerHTML = "";
+
+      if (!lastSafeFixes.length) {
+        safeFixesEl.textContent = "No safe fixes available.";
+      } else {
+        lastSafeFixes.forEach((f) => safeFixesEl.appendChild(makeFixRow(f, true)));
+      }
+
+      const manual = payload.manualFixes || [];
+      if (!manual.length) {
+        manualFixesEl.textContent = "No manual review items.";
+      } else {
+        manual.forEach((f) => manualFixesEl.appendChild(makeFixRow(f, false)));
+      }
+
+      if (payload.reason) {
+        statusEl.textContent = payload.reason;
+      }
+    }
+
+    function renderResult(payload) {
+      scoreText.textContent = `Compatibility Score: ${payload.score}/100`;
+      criticalCount.textContent = String(payload.summary.CRITICAL || 0);
+      warningCount.textContent = String(payload.summary.WARNING || 0);
+      minorCount.textContent = String(payload.summary.MINOR || 0);
+
+      exportBtn.disabled = !!payload.blocked;
+
+      if (payload.blocked) {
+        gateBadge.textContent = "BLOCKED";
+        gateBadge.className = "badge blocked";
+      } else {
+        gateBadge.textContent = "SAFE";
+        gateBadge.className = "badge safe";
+      }
+
+      statusEl.textContent = payload.reason || statusEl.textContent;
+      issuesEl.innerHTML = "";
+
+      if (!payload.results || payload.results.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "item";
+        empty.textContent = "No compatibility issues found in selected nodes.";
+        issuesEl.appendChild(empty);
+        return;
+      }
+
+      payload.results.forEach((r) => {
+        const wrap = document.createElement("div");
+        wrap.className = "item";
+
+        const head = document.createElement("div");
+        head.className = "item-head";
+
+        const title = document.createElement("div");
+        title.className = "item-title";
+        title.textContent = `${r.nodeName} (${r.nodeType})`;
+
+        const focus = document.createElement("button");
+        focus.textContent = "Focus";
+        focus.onclick = () => {
+          parent.postMessage({ pluginMessage: { type: "SELECT_NODE", nodeId: r.nodeId } }, "*");
+        };
+
+        head.appendChild(title);
+        head.appendChild(focus);
+
+        const ul = document.createElement("ul");
+        r.issues.forEach((i) => {
+          const li = document.createElement("li");
+          li.className = severityClass(i.severity);
+          li.textContent = `[${i.severity}] ${i.message}`;
+          ul.appendChild(li);
+        });
+
+        wrap.appendChild(head);
+        wrap.appendChild(ul);
+        issuesEl.appendChild(wrap);
+      });
+    }
+
+    scanBtn.addEventListener("click", () => {
+      statusEl.textContent = "Scanning selection...";
+      parent.postMessage({ pluginMessage: { type: "RUN_VALIDATION" } }, "*");
+    });
+
+    previewBtn.addEventListener("click", () => {
+      statusEl.textContent = "Generating fix preview...";
+      parent.postMessage({ pluginMessage: { type: "RUN_FIX_PREVIEW" } }, "*");
+    });
+
+    applySelectedBtn.addEventListener("click", () => {
+      statusEl.textContent = "Applying selected fixes...";
+      parent.postMessage({
+        pluginMessage: {
+          type: "APPLY_SELECTED_FIXES",
+          ids: Array.from(selectedFixIds),
+        },
+      }, "*");
+    });
+
+    autoFixBtn.addEventListener("click", () => {
+      statusEl.textContent = "Applying all safe fixes...";
+      parent.postMessage({ pluginMessage: { type: "RUN_AUTO_FIX" } }, "*");
+    });
+
+    exportBtn.addEventListener("click", () => {
+      statusEl.textContent = "Running compliance gate before export...";
+      parent.postMessage({ pluginMessage: { type: "EXPORT_REQUEST" } }, "*");
+    });
+
+    window.onmessage = (event) => {
+      const msg = event.data.pluginMessage;
+      if (!msg || !msg.type) return;
+
+      if (msg.type === "VALIDATION_RESULT") {
+        renderResult(msg.payload);
+      }
+
+      if (msg.type === "FIX_PREVIEW_RESULT") {
+        renderPreview(msg.payload);
+        renderResult(msg.payload.validation);
+        statusEl.textContent = `Preview ready. ${msg.payload.safeFixes.length} safe, ${msg.payload.manualFixes.length} manual.`;
+      }
+
+      if (msg.type === "APPLY_SELECTED_RESULT") {
+        renderPreview(msg.payload.preview);
+        renderResult(msg.payload.validation);
+        statusEl.textContent = `Applied ${msg.payload.appliedCount}/${msg.payload.requestedCount} selected fixes.`;
+      }
+
+      if (msg.type === "AUTO_FIX_RESULT") {
+        renderPreview(msg.payload.preview);
+        renderResult(msg.payload.validation);
+        statusEl.textContent = `Auto-fix complete. Applied ${msg.payload.fixedCount} fix${msg.payload.fixedCount === 1 ? "" : "es"}.`;
+      }
+
+      if (msg.type === "EXPORT_BLOCKED") {
+        statusEl.textContent = `Export blocked. Score ${msg.payload.score}/100.`;
+      }
+
+      if (msg.type === "EXPORT_ALLOWED") {
+        statusEl.textContent = `Export allowed. Score ${msg.payload.score}/100.`;
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "Figma to Elementor Compliance Engine",
+  "id": "figma-elementor-compliance-engine",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"]
+}
