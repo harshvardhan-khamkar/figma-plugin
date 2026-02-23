@@ -1,45 +1,52 @@
-# Figma -> Elementor Pre-Conversion Compliance Engine
+# Figma Multi-Framework Code Exporter (Local)
 
-## What this does
-- Scans selected nodes recursively
-- Applies 4 validation engines:
-  - Structure Validation
-  - Width & Spacing Validation
-  - Responsive Compliance
-  - Design Type Compatibility
-- Produces issue list and weighted compatibility score
-- Blocks export when:
-  - Any critical issue exists, or
-  - Score is below 70
+This plugin converts selected Figma layers into:
 
-## Fix workflow
-- `Preview`: Generates proposed fixes without mutating nodes
-- Preview groups output into:
-  - `Safe To Apply`
-  - `Needs Manual Review`
-- `Apply Selected`: Applies only checked safe fixes from preview
-- `Auto-Fix All`: One-click apply for all safe fixes
+- `HTML + Tailwind`
+- `React JSX`
+- `WordPress Elementor JSON`
 
-## Safe fix types
-- Convert eligible non-overlapping structural frames to Auto Layout
-- Convert ABSOLUTE child positioning to AUTO inside Auto Layout parents
-- Set narrow text layers to `textAutoResize = HEIGHT`
-- Harmonize mixed fixed/fill widths when a single child is the minority
+All conversion runs locally inside the Figma plugin runtime (no external API calls).
+
+## How it works
+
+1. Reads current selection (`SceneNode[]`).
+2. Converts nodes into a normalized intermediate JSON model.
+3. Runs framework-specific generators.
+4. Displays generated code, warnings, colors/gradients, and model JSON in the plugin UI.
+5. Supports Figma Codegen panel output for the same three targets.
 
 ## Files
-- `manifest.json` plugin manifest
-- `code.js` validation + preview + apply + gate logic
-- `ui.html` scan/report/preview/apply/gate UI
 
-## Usage
-1. In Figma Desktop: Plugins -> Development -> Import plugin from manifest
-2. Pick `manifest.json` in this folder
-3. Select one or more sections/frames
-4. Click `Scan`
-5. Click `Preview`
-6. Click `Apply Selected` or `Auto-Fix All`
-7. Re-scan and fix remaining issues until score >= 70 and no critical issues
-8. Click `Export`
+- `manifest.json` plugin metadata + codegen language mapping
+- `code.js` main plugin runtime (conversion pipeline + generators + codegen handler)
+- `ui.html` plugin panel UI (framework tabs, code view, warnings, palette, node focus)
 
-## Notes
-This is a pre-conversion compliance gate. Export action is intentionally gated and only emits allowed/blocked events in this scaffold.
+## UI usage (plugin panel)
+
+1. Import plugin from `manifest.json` in Figma Desktop.
+2. Select one or more layers/frames/components.
+3. Run `Regenerate`.
+4. Switch tabs:
+   - `HTML + Tailwind`
+   - `React JSX`
+   - `WordPress Elementor`
+5. Copy generated code or intermediate JSON.
+6. Use `Focus` on a converted node to jump to it in canvas.
+
+## Codegen mode usage (Inspect/Dev panel)
+
+- Enable code in Figma Code panel using one of:
+  - `HTML + Tailwind`
+  - `React JSX`
+  - `WordPress Elementor`
+- The plugin converts the current codegen target node and returns generated output for that language.
+
+## Notes / current scope
+
+- `GROUP` nodes are normalized to `FRAME` in the intermediate model.
+- `SLICE` nodes are skipped.
+- Image paints are exported as placeholder URLs in generated output.
+- Vector-like nodes are simplified to placeholders in generated HTML/Elementor output.
+- Complex visual effects, masks, and blend modes may require manual cleanup after generation.
+

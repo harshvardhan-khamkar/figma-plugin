@@ -1,8 +1,17 @@
 {
-  "name": "Figma to Elementor Compliance Engine",
+  "name": "Figma Multi-Framework Code Exporter",
   "id": "figma-elementor-compliance-engine",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
-  "editorType": ["figma"]
+  "editorType": ["figma", "dev"],
+  "capabilities": ["codegen"],
+  "codegenLanguages": [
+    { "label": "HTML + Tailwind", "value": "HTML_TAILWIND" },
+    { "label": "React JSX", "value": "REACT" },
+    { "label": "WordPress Elementor", "value": "WORDPRESS_ELEMENTOR" }
+  ],
+  "networkAccess": {
+    "allowedDomains": ["none"]
+  }
 }

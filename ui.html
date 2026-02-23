@@ -3,468 +3,467 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Compliance Engine</title>
+  <title>Figma to Code</title>
   <style>
     :root {
+      --bg: #f6f7fb;
       --panel: #ffffff;
+      --line: #d7dbe7;
       --text: #111827;
-      --muted: #6b7280;
-      --ok: #065f46;
-      --warn: #92400e;
-      --danger: #991b1b;
-      --line: #d1d5db;
+      --muted: #667085;
       --accent: #0f766e;
+      --accent-soft: #ccfbf1;
+      --warn: #b45309;
+      --danger: #b91c1c;
+      --chip: #eef2ff;
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      background: radial-gradient(circle at top right, #d1fae5, #f3f4f6 60%);
+      padding: 12px;
+      background: radial-gradient(circle at 100% 0%, #d1fae5, var(--bg) 45%);
       color: var(--text);
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      padding: 12px;
-    }
-
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 12px;
-      box-shadow: 0 4px 14px rgba(17, 24, 39, 0.06);
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 16px;
-    }
-
-    .muted {
-      color: var(--muted);
       font-size: 12px;
-      margin-top: 4px;
-      margin-bottom: 12px;
     }
 
-    .score {
+    .app {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      padding: 12px;
+      box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+    }
+
+    .head {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 12px;
       margin-bottom: 10px;
-      font-size: 14px;
-      font-weight: 600;
     }
 
-    .badge {
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 12px;
+    .title {
+      font-size: 16px;
       font-weight: 700;
     }
 
-    .safe { background: #d1fae5; color: var(--ok); }
-    .blocked { background: #fee2e2; color: var(--danger); }
-
-    .actions {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-      margin-bottom: 12px;
+    .subtitle {
+      color: var(--muted);
+      margin-top: 2px;
     }
 
-    button {
+    .frameworks {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .framework-btn {
       border: 1px solid var(--line);
-      background: white;
+      background: #fff;
       color: var(--text);
       border-radius: 8px;
-      padding: 8px 8px;
-      font-size: 12px;
+      padding: 6px 10px;
       cursor: pointer;
+      font-weight: 600;
     }
 
-    button.primary {
-      background: var(--accent);
-      color: white;
+    .framework-btn.active {
       border-color: #115e59;
+      background: var(--accent);
+      color: #fff;
     }
 
-    button:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-
-    .summary {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+    .actions {
+      display: flex;
       gap: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
     }
 
-    .pill {
-      font-size: 11px;
+    button.action {
       border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
       border-radius: 8px;
-      padding: 6px;
-      text-align: center;
-      background: #fafafa;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    button.action.primary {
+      background: var(--accent);
+      border-color: #115e59;
+      color: #fff;
     }
 
     .status {
-      font-size: 12px;
+      color: var(--muted);
       margin-bottom: 8px;
       min-height: 16px;
-      color: var(--muted);
     }
 
-    .preview-grid {
+    .layout {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 10px;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 10px;
     }
 
     .panel {
       border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 8px;
-      background: #fbfffe;
-      min-height: 120px;
-      max-height: 180px;
-      overflow: auto;
-      font-size: 12px;
-    }
-
-    .panel h2 {
-      margin: 0 0 6px;
-      font-size: 11px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-    }
-
-    .fix-row {
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 6px;
-      margin-bottom: 6px;
+      border-radius: 10px;
       background: #fff;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 180px;
     }
 
-    .fix-title {
-      font-weight: 600;
-      margin-bottom: 2px;
+    .panel-title {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 10px;
+      font-weight: 700;
+      background: #fbfcff;
     }
 
-    .fix-meta {
-      color: var(--muted);
+    pre {
+      margin: 0;
+      padding: 10px;
+      overflow: auto;
+      white-space: pre;
+      font-family: Consolas, "Courier New", monospace;
       font-size: 11px;
+      line-height: 1.4;
+      flex: 1;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
     }
 
     .list {
-      max-height: 280px;
+      list-style: none;
+      margin: 0;
+      padding: 8px 10px;
+      max-height: 140px;
       overflow: auto;
-      border-top: 1px solid var(--line);
-      padding-top: 8px;
     }
 
-    .item {
+    .list li {
+      margin-bottom: 6px;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 8px;
-      margin-bottom: 8px;
+      border-radius: 7px;
+      padding: 6px;
       background: #fff;
     }
 
-    .item-head {
+    .list li.warn { border-color: #fcd34d; color: var(--warn); }
+    .list li.error { border-color: #fca5a5; color: var(--danger); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 8px 10px;
+      max-height: 120px;
+      overflow: auto;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: var(--chip);
+      font-size: 11px;
+    }
+
+    .node-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 8px;
-      margin-bottom: 6px;
     }
 
-    .item-title {
-      font-size: 12px;
-      font-weight: 700;
+    .focus-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 6px;
+      padding: 3px 6px;
+      cursor: pointer;
+      font-size: 11px;
     }
-
-    ul {
-      margin: 0;
-      padding-left: 16px;
-    }
-
-    li {
-      font-size: 12px;
-      margin-bottom: 4px;
-    }
-
-    .sev-critical { color: var(--danger); }
-    .sev-warning { color: var(--warn); }
-    .sev-minor { color: var(--muted); }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Pre-Conversion Compliance Engine</h1>
-    <div class="muted">Figma -> Elementor safety gate</div>
-
-    <div class="score">
-      <span id="scoreText">Compatibility Score: --/100</span>
-      <span id="gateBadge" class="badge blocked">BLOCKED</span>
+  <div class="app">
+    <div class="head">
+      <div>
+        <div class="title">Figma To Code (Local)</div>
+        <div class="subtitle">Intermediate JSON -> HTML+Tailwind / React / WordPress Elementor</div>
+      </div>
     </div>
 
-    <div class="summary">
-      <div class="pill">Critical: <strong id="criticalCount">0</strong></div>
-      <div class="pill">Warning: <strong id="warningCount">0</strong></div>
-      <div class="pill">Minor: <strong id="minorCount">0</strong></div>
+    <div class="frameworks">
+      <button class="framework-btn" data-framework="html-tailwind">HTML + Tailwind</button>
+      <button class="framework-btn" data-framework="react">React JSX</button>
+      <button class="framework-btn" data-framework="wordpress-elementor">WordPress Elementor</button>
     </div>
 
     <div class="actions">
-      <button id="scanBtn" class="primary">Scan</button>
-      <button id="previewBtn">Preview</button>
-      <button id="applySelectedBtn" disabled>Apply Selected</button>
-      <button id="autoFixBtn">Auto-Fix All</button>
-      <button id="exportBtn" disabled>Export</button>
+      <button id="refreshBtn" class="action primary">Regenerate</button>
+      <button id="copyCodeBtn" class="action">Copy Active Code</button>
+      <button id="copyJsonBtn" class="action">Copy Model JSON</button>
     </div>
 
-    <div id="status" class="status">Select one or more top-level sections and run scan.</div>
+    <div id="status" class="status">Waiting for selection…</div>
 
-    <div class="preview-grid">
-      <div class="panel" id="safePanel">
-        <h2>Safe To Apply</h2>
-        <div id="safeFixes">Run preview to see safe fixes.</div>
-      </div>
-      <div class="panel" id="manualPanel">
-        <h2>Needs Manual Review</h2>
-        <div id="manualFixes">Run preview to see manual items.</div>
-      </div>
+    <div class="layout">
+      <section class="panel">
+        <div id="codeTitle" class="panel-title">Generated Code</div>
+        <pre id="codeOutput"></pre>
+      </section>
+
+      <section class="stack">
+        <section class="panel">
+          <div class="panel-title">Warnings</div>
+          <ul id="warningList" class="list"></ul>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">Colors</div>
+          <div id="colorChips" class="chips"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">Gradients</div>
+          <div id="gradientChips" class="chips"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">Converted Nodes</div>
+          <ul id="nodeList" class="list"></ul>
+        </section>
+      </section>
     </div>
 
-    <div id="issues" class="list"></div>
+    <section class="panel" style="margin-top:10px;">
+      <div class="panel-title">Intermediate JSON</div>
+      <pre id="jsonOutput"></pre>
+    </section>
   </div>
 
   <script>
-    const scanBtn = document.getElementById("scanBtn");
-    const previewBtn = document.getElementById("previewBtn");
-    const applySelectedBtn = document.getElementById("applySelectedBtn");
-    const autoFixBtn = document.getElementById("autoFixBtn");
-    const exportBtn = document.getElementById("exportBtn");
-    const scoreText = document.getElementById("scoreText");
-    const gateBadge = document.getElementById("gateBadge");
+    const FRAMEWORKS = ["html-tailwind", "react", "wordpress-elementor"];
+    const frameworkButtons = Array.from(document.querySelectorAll(".framework-btn"));
     const statusEl = document.getElementById("status");
-    const issuesEl = document.getElementById("issues");
-    const safeFixesEl = document.getElementById("safeFixes");
-    const manualFixesEl = document.getElementById("manualFixes");
-    const criticalCount = document.getElementById("criticalCount");
-    const warningCount = document.getElementById("warningCount");
-    const minorCount = document.getElementById("minorCount");
+    const codeOutputEl = document.getElementById("codeOutput");
+    const jsonOutputEl = document.getElementById("jsonOutput");
+    const codeTitleEl = document.getElementById("codeTitle");
+    const warningListEl = document.getElementById("warningList");
+    const colorChipsEl = document.getElementById("colorChips");
+    const gradientChipsEl = document.getElementById("gradientChips");
+    const nodeListEl = document.getElementById("nodeList");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const copyCodeBtn = document.getElementById("copyCodeBtn");
+    const copyJsonBtn = document.getElementById("copyJsonBtn");
 
-    let lastSafeFixes = [];
-    let selectedFixIds = new Set();
+    const state = {
+      framework: "html-tailwind",
+      outputs: { "html-tailwind": "", react: "", "wordpress-elementor": "" },
+      model: [],
+      modelJSON: "[]",
+      warnings: [],
+      palettes: { colors: [], gradients: [] },
+      selectionCount: 0,
+      nodeCount: 0,
+      trigger: "",
+    };
 
-    function severityClass(sev) {
-      if (sev === "CRITICAL") return "sev-critical";
-      if (sev === "WARNING") return "sev-warning";
-      return "sev-minor";
+    function post(message) {
+      parent.postMessage({ pluginMessage: message }, "*");
     }
 
-    function setApplyButtonState() {
-      applySelectedBtn.disabled = selectedFixIds.size === 0;
+    function frameworkLabel(value) {
+      if (value === "react") return "React JSX";
+      if (value === "wordpress-elementor") return "WordPress Elementor JSON";
+      return "HTML + Tailwind";
     }
 
-    function makeFixRow(fix, withCheckbox) {
-      const row = document.createElement("div");
-      row.className = "fix-row";
-
-      if (withCheckbox) {
-        const line = document.createElement("label");
-        const input = document.createElement("input");
-        input.type = "checkbox";
-        input.checked = selectedFixIds.has(fix.id);
-        input.onchange = () => {
-          if (input.checked) selectedFixIds.add(fix.id);
-          else selectedFixIds.delete(fix.id);
-          setApplyButtonState();
-        };
-        line.appendChild(input);
-
-        const text = document.createElement("span");
-        text.textContent = ` ${fix.nodeName}`;
-        line.appendChild(text);
-        row.appendChild(line);
-      }
-
-      const title = document.createElement("div");
-      title.className = "fix-title";
-      title.textContent = fix.action;
-      row.appendChild(title);
-
-      const meta = document.createElement("div");
-      meta.className = "fix-meta";
-      meta.textContent = `Node: ${fix.nodeName}`;
-      row.appendChild(meta);
-
-      if (fix.reason) {
-        const reason = document.createElement("div");
-        reason.className = "fix-meta";
-        reason.textContent = `Reason: ${fix.reason}`;
-        row.appendChild(reason);
-      }
-
-      return row;
+    function activeCode() {
+      return state.outputs[state.framework] || "";
     }
 
-    function renderPreview(payload) {
-      lastSafeFixes = payload.safeFixes || [];
-      selectedFixIds = new Set(lastSafeFixes.map((f) => f.id));
-      setApplyButtonState();
+    function flattenNodes(nodes, depth = 0, out = []) {
+      (nodes || []).forEach((node) => {
+        out.push({ id: node.id, name: node.name, type: node.type, depth });
+        flattenNodes(node.children || [], depth + 1, out);
+      });
+      return out;
+    }
 
-      safeFixesEl.innerHTML = "";
-      manualFixesEl.innerHTML = "";
-
-      if (!lastSafeFixes.length) {
-        safeFixesEl.textContent = "No safe fixes available.";
-      } else {
-        lastSafeFixes.forEach((f) => safeFixesEl.appendChild(makeFixRow(f, true)));
-      }
-
-      const manual = payload.manualFixes || [];
-      if (!manual.length) {
-        manualFixesEl.textContent = "No manual review items.";
-      } else {
-        manual.forEach((f) => manualFixesEl.appendChild(makeFixRow(f, false)));
-      }
-
-      if (payload.reason) {
-        statusEl.textContent = payload.reason;
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (_err) {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        return ok;
       }
     }
 
-    function renderResult(payload) {
-      scoreText.textContent = `Compatibility Score: ${payload.score}/100`;
-      criticalCount.textContent = String(payload.summary.CRITICAL || 0);
-      warningCount.textContent = String(payload.summary.WARNING || 0);
-      minorCount.textContent = String(payload.summary.MINOR || 0);
+    function setFramework(framework, notify = true) {
+      if (!FRAMEWORKS.includes(framework)) return;
+      state.framework = framework;
+      frameworkButtons.forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.framework === framework);
+      });
+      renderCode();
+      if (notify) post({ type: "SET_FRAMEWORK", framework });
+    }
 
-      exportBtn.disabled = !!payload.blocked;
+    function renderCode() {
+      codeTitleEl.textContent = `Generated Code (${frameworkLabel(state.framework)})`;
+      codeOutputEl.textContent = activeCode();
+    }
 
-      if (payload.blocked) {
-        gateBadge.textContent = "BLOCKED";
-        gateBadge.className = "badge blocked";
-      } else {
-        gateBadge.textContent = "SAFE";
-        gateBadge.className = "badge safe";
-      }
-
-      statusEl.textContent = payload.reason || statusEl.textContent;
-      issuesEl.innerHTML = "";
-
-      if (!payload.results || payload.results.length === 0) {
-        const empty = document.createElement("div");
-        empty.className = "item";
-        empty.textContent = "No compatibility issues found in selected nodes.";
-        issuesEl.appendChild(empty);
+    function renderWarnings() {
+      warningListEl.innerHTML = "";
+      const warnings = state.warnings || [];
+      if (!warnings.length) {
+        const li = document.createElement("li");
+        li.textContent = "No warnings.";
+        warningListEl.appendChild(li);
         return;
       }
 
-      payload.results.forEach((r) => {
-        const wrap = document.createElement("div");
-        wrap.className = "item";
-
-        const head = document.createElement("div");
-        head.className = "item-head";
-
-        const title = document.createElement("div");
-        title.className = "item-title";
-        title.textContent = `${r.nodeName} (${r.nodeType})`;
-
-        const focus = document.createElement("button");
-        focus.textContent = "Focus";
-        focus.onclick = () => {
-          parent.postMessage({ pluginMessage: { type: "SELECT_NODE", nodeId: r.nodeId } }, "*");
-        };
-
-        head.appendChild(title);
-        head.appendChild(focus);
-
-        const ul = document.createElement("ul");
-        r.issues.forEach((i) => {
-          const li = document.createElement("li");
-          li.className = severityClass(i.severity);
-          li.textContent = `[${i.severity}] ${i.message}`;
-          ul.appendChild(li);
-        });
-
-        wrap.appendChild(head);
-        wrap.appendChild(ul);
-        issuesEl.appendChild(wrap);
+      warnings.forEach((w) => {
+        const li = document.createElement("li");
+        li.className = String(w.code || "").includes("UNSUPPORTED") ? "warn" : "";
+        li.textContent = `${w.code}: ${w.message}${w.nodeName ? ` (${w.nodeName})` : ""}`;
+        warningListEl.appendChild(li);
       });
     }
 
-    scanBtn.addEventListener("click", () => {
-      statusEl.textContent = "Scanning selection...";
-      parent.postMessage({ pluginMessage: { type: "RUN_VALIDATION" } }, "*");
+    function renderChips(container, values, emptyText) {
+      container.innerHTML = "";
+      if (!values || values.length === 0) {
+        const chip = document.createElement("div");
+        chip.className = "chip";
+        chip.textContent = emptyText;
+        container.appendChild(chip);
+        return;
+      }
+      values.forEach((value) => {
+        const chip = document.createElement("div");
+        chip.className = "chip";
+        chip.textContent = value;
+        container.appendChild(chip);
+      });
+    }
+
+    function renderNodes() {
+      nodeListEl.innerHTML = "";
+      const nodes = flattenNodes(state.model || []);
+      if (!nodes.length) {
+        const li = document.createElement("li");
+        li.textContent = "No converted nodes.";
+        nodeListEl.appendChild(li);
+        return;
+      }
+
+      nodes.forEach((n) => {
+        const li = document.createElement("li");
+        const row = document.createElement("div");
+        row.className = "node-row";
+
+        const title = document.createElement("span");
+        title.textContent = `${" ".repeat(n.depth * 2)}${n.name} (${n.type})`;
+
+        const focus = document.createElement("button");
+        focus.className = "focus-btn";
+        focus.textContent = "Focus";
+        focus.onclick = () => post({ type: "SELECT_NODE", nodeId: n.id });
+
+        row.appendChild(title);
+        row.appendChild(focus);
+        li.appendChild(row);
+        nodeListEl.appendChild(li);
+      });
+    }
+
+    function renderStatus() {
+      const trigger = state.trigger ? ` via ${state.trigger}` : "";
+      statusEl.textContent = `Selection: ${state.selectionCount} root node(s) | Converted: ${state.nodeCount} node(s)${trigger}`;
+    }
+
+    function renderAll() {
+      renderStatus();
+      renderCode();
+      renderWarnings();
+      renderChips(colorChipsEl, state.palettes.colors, "No colors");
+      renderChips(gradientChipsEl, state.palettes.gradients, "No gradients");
+      renderNodes();
+      jsonOutputEl.textContent = state.modelJSON || "[]";
+    }
+
+    frameworkButtons.forEach((btn) => {
+      btn.onclick = () => setFramework(btn.dataset.framework, true);
     });
 
-    previewBtn.addEventListener("click", () => {
-      statusEl.textContent = "Generating fix preview...";
-      parent.postMessage({ pluginMessage: { type: "RUN_FIX_PREVIEW" } }, "*");
-    });
+    refreshBtn.onclick = () => post({ type: "RUN_CONVERSION" });
 
-    applySelectedBtn.addEventListener("click", () => {
-      statusEl.textContent = "Applying selected fixes...";
-      parent.postMessage({
-        pluginMessage: {
-          type: "APPLY_SELECTED_FIXES",
-          ids: Array.from(selectedFixIds),
-        },
-      }, "*");
-    });
+    copyCodeBtn.onclick = async () => {
+      const ok = await copyText(activeCode());
+      statusEl.textContent = ok ? "Active code copied." : "Copy failed.";
+    };
 
-    autoFixBtn.addEventListener("click", () => {
-      statusEl.textContent = "Applying all safe fixes...";
-      parent.postMessage({ pluginMessage: { type: "RUN_AUTO_FIX" } }, "*");
-    });
-
-    exportBtn.addEventListener("click", () => {
-      statusEl.textContent = "Running compliance gate before export...";
-      parent.postMessage({ pluginMessage: { type: "EXPORT_REQUEST" } }, "*");
-    });
+    copyJsonBtn.onclick = async () => {
+      const ok = await copyText(state.modelJSON || "[]");
+      statusEl.textContent = ok ? "Intermediate JSON copied." : "Copy failed.";
+    };
 
     window.onmessage = (event) => {
       const msg = event.data.pluginMessage;
       if (!msg || !msg.type) return;
 
-      if (msg.type === "VALIDATION_RESULT") {
-        renderResult(msg.payload);
+      if (msg.type === "CONVERSION_ERROR") {
+        statusEl.textContent = `Error: ${msg.payload && msg.payload.message ? msg.payload.message : "Unknown error"}`;
+        return;
       }
 
-      if (msg.type === "FIX_PREVIEW_RESULT") {
-        renderPreview(msg.payload);
-        renderResult(msg.payload.validation);
-        statusEl.textContent = `Preview ready. ${msg.payload.safeFixes.length} safe, ${msg.payload.manualFixes.length} manual.`;
-      }
-
-      if (msg.type === "APPLY_SELECTED_RESULT") {
-        renderPreview(msg.payload.preview);
-        renderResult(msg.payload.validation);
-        statusEl.textContent = `Applied ${msg.payload.appliedCount}/${msg.payload.requestedCount} selected fixes.`;
-      }
-
-      if (msg.type === "AUTO_FIX_RESULT") {
-        renderPreview(msg.payload.preview);
-        renderResult(msg.payload.validation);
-        statusEl.textContent = `Auto-fix complete. Applied ${msg.payload.fixedCount} fix${msg.payload.fixedCount === 1 ? "" : "es"}.`;
-      }
-
-      if (msg.type === "EXPORT_BLOCKED") {
-        statusEl.textContent = `Export blocked. Score ${msg.payload.score}/100.`;
-      }
-
-      if (msg.type === "EXPORT_ALLOWED") {
-        statusEl.textContent = `Export allowed. Score ${msg.payload.score}/100.`;
+      if (msg.type === "CONVERSION_RESULT") {
+        const payload = msg.payload || {};
+        state.framework = payload.framework || state.framework;
+        state.outputs = payload.outputs || state.outputs;
+        state.model = payload.model || [];
+        state.modelJSON = payload.modelJSON || "[]";
+        state.warnings = payload.warnings || [];
+        state.palettes = payload.palettes || { colors: [], gradients: [] };
+        state.selectionCount = payload.selectionCount || 0;
+        state.nodeCount = payload.nodeCount || 0;
+        state.trigger = payload.trigger || "";
+        setFramework(state.framework, false);
+        renderAll();
       }
     };
+
+    setFramework(state.framework, false);
+    post({ type: "RUN_CONVERSION" });
   </script>
 </body>
 </html>
