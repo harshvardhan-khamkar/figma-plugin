@@ -50,3 +50,4 @@ All conversion runs locally inside the Figma plugin runtime (no external API cal
 - Vector-like nodes are simplified to placeholders in generated HTML/Elementor output.
 - Complex visual effects, masks, and blend modes may require manual cleanup after generation.
 
+chnages by revati
